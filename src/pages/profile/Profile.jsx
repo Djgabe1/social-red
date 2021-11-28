@@ -3,8 +3,24 @@ import Topbar from '../../components/topbar/Topbar';
 import Sidebar from '../../components/sidebar/Sidebar';
 import Rightbar from '../../components/rightbar/Rightbar';
 import Feed from '../../components/feed/Feed';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router';
+
 
 export default function Profile() {
+    const PF = process.env.REACT_APP_PUBLIC_FOLDER;
+
+    const [users, setUsers] = useState({});
+    const username = useParams().username;
+
+    useEffect(()=>{
+        const FetchUsers = async () =>{
+            const res = await axios.get(`/users?username=${username}`)
+            setUsers(res.data)
+        };
+        FetchUsers();
+    },[username]);
     return (
         <>
             <Topbar/>
@@ -13,17 +29,17 @@ export default function Profile() {
                 <div className="profileRight">
                     <div className="profileRightTop">
                         <div className="profileCover">
-                        <img className='profileCoverImg' src="assets/post/3.jpeg" alt="" />
-                        <img className='profileUserImg' src="assets/person/7.jpeg" alt="" />
+                        <img className='profileCoverImg' src={users.coverPicture ? PF+users.coverPicture : PF + 'person/noCover.png'} alt="" />
+                        <img className='profileUserImg' src={users.profilePicture ? PF+users.profilePicture : PF + 'person/noAvatar.png'} alt="" />
                         </div>
                         <div className="profileInfo">
-                            <h4 className='profileInfoName'>Safak Kocaoglu</h4>
-                            <span className="profileInfoDesc">Hello my friends!</span>
+                            <h4 className='profileInfoName'>{users.username}</h4>
+                            <span className="profileInfoDesc">{users.desc}</span>
                         </div>
                     </div>
                     <div className="profileRightBottom">
-                    <Feed/>
-                    <Rightbar profile/>
+                    <Feed username={username}/>
+                    <Rightbar user={users}/>
                     </div>
                 
                 </div>
